@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .image-section, .form-section {
+            margin-bottom: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTML Example with Images, Buttons, and Text Fields</h1>
+        
+        <div class="image-section">
+            <h2>Image Section</h2>
+            <img src="https://via.placeholder.com/800x400" alt="Placeholder Image">
+            <button onclick="alert('You clicked the image button!')">Click Me</button>
+        </div>
+
+        <div class="form-section">
+            <h2>Form Section</h2>
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Enter your name">
+
+            <label for="email">Email:</label>
+            <input type="text" id="email" placeholder="Enter your email">
+
+            <button onclick="submitForm()">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        function submitForm() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            alert(`Name: ${name}\nEmail: ${email}`);
+        }
+    </script>
+</body>
+</html>
