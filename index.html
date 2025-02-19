@@ -53,13 +53,17 @@
   }(window,document,'script');
   // initialize the SDK
 braze.initialize('584db945-8f99-45bd-882a-afa765fb92b8', {
-    baseUrl: "sdk.iad-03.braze.com"
+    baseUrl: "sdk.iad-03.braze.com",
+    allowUserSuppliedJavascript: true
 });
 
 // optionally show all in-app messages without custom handling
 braze.automaticallyShowInAppMessages();
     braze.openSession();
-
+   function resetUser() {
+       braze.changeUser("user"+Date.now());
+       braze.openSession();
+   }
    function inAppMessageTrigger() {
            braze.logCustomEvent("review_trigger", {
 });
@@ -74,8 +78,8 @@ braze.automaticallyShowInAppMessages();
         
         <div class="image-section">
             <h2>Image Section</h2>
-            <img src="https://via.placeholder.com/800x400" alt="Placeholder Image">
             <button onclick="inAppMessageTrigger()">Click Me</button>
+            <button onclick="resetUser()">Reset User</button>
         </div>
 
         <div class="form-section">
