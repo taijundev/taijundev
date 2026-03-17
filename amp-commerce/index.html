@@ -4,6 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AMP Commerce</title>
+  <script src="https://cdn.amplitude.com/script/c9d6c776f682045c5a2456782659cb49.js"></script>
+  <script>
+    window.amplitude.init('c9d6c776f682045c5a2456782659cb49', {
+      fetchRemoteConfig: true,
+      autocapture: {
+        sessions: true,
+        pageViews: false,
+        formInteractions: false,
+        fileDownloads: false,
+        attribution: false,
+      },
+    });
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
