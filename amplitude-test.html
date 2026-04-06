@@ -389,10 +389,8 @@
 <script>
   // ── Amplitude 초기화 ──
   const API_KEY = 'c9d6c776f682045c5a2456782659cb49';
-  amplitude.add(amplitude.sessionReplayTracking()).promise.then(() => {
-    amplitude.init(API_KEY, { logLevel: amplitude.Types.LogLevel.Debug });
-    console.log('[Amplitude] initialized');
-  });
+  amplitude.init(API_KEY, { logLevel: amplitude.Types.LogLevel.Debug });
+  console.log('[Amplitude] initialized');
 
   // ── Toast ──
   let toastTimer = null;
