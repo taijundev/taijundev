@@ -390,7 +390,12 @@
 <script>
   // ── Amplitude Analytics 초기화 ──
   const API_KEY = 'c9d6c776f682045c5a2456782659cb49';
-  amplitude.init(API_KEY, { logLevel: amplitude.Types.LogLevel.Debug });
+  const urlUserId = new URLSearchParams(window.location.search).get('userId');
+  amplitude.init(API_KEY, {
+    logLevel: amplitude.Types.LogLevel.Debug,
+    ...(urlUserId ? { userId: urlUserId } : {})
+  });
+  if (urlUserId) console.log('[Amplitude] User ID set from URL:', urlUserId);
   console.log('[Amplitude] initialized');
 
   // ── Amplitude Experiment 초기화 및 fetch ──
