@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Amplitude Test UI</title>
   <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.12-min.js.gz"></script>
+  <script src="https://unpkg.com/@amplitude/experiment-js-client@1.15.5/dist/experiment.umd.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -387,10 +388,22 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Amplitude 초기화 ──
+  // ── Amplitude Analytics 초기화 ──
   const API_KEY = 'c9d6c776f682045c5a2456782659cb49';
   amplitude.init(API_KEY, { logLevel: amplitude.Types.LogLevel.Debug });
   console.log('[Amplitude] initialized');
+
+  // ── Amplitude Experiment 초기화 및 fetch ──
+  const DEPLOYMENT_KEY = 'client-ZAXnrvfOzA866W08BjyYYp49RK8klVNm';
+  const experiment = Experiment.initializeWithAmplitudeAnalytics(DEPLOYMENT_KEY);
+  experiment.fetch()
+    .then(() => {
+      const variants = experiment.all();
+      console.log('[Experiment] fetch 성공 - variants:', variants);
+    })
+    .catch((err) => {
+      console.error('[Experiment] fetch 실패:', err);
+    });
 
   // ── Toast ──
   let toastTimer = null;
