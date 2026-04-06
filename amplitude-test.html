@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Amplitude Test UI</title>
+  <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.12-min.js.gz"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f2f2f7;
+      min-height: 100vh;
+      color: #1c1c1e;
+    }
+
+    /* ── Banner ── */
+    .banner {
+      background: linear-gradient(to right, #9333ea, #2563eb);
+      padding: 28px 16px;
+      text-align: center;
+    }
+    .banner h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .banner p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.85);
+      margin-top: 4px;
+    }
+
+    /* ── Card list ── */
+    .card-list {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 100px;
+    }
+
+    /* ── Collapsible Card ── */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-header:active { background: #f9f9f9; }
+    .card-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .chevron {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.25s ease;
+      color: #8e8e93;
+    }
+    .chevron.open { transform: rotate(180deg); }
+
+    .card-divider { height: 1px; background: #e5e5ea; }
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card-body.hidden { display: none; }
+
+    /* ── Form elements ── */
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1c1c1e;
+    }
+    input[type="text"], input[type="url"], select {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #f2f2f7;
+      font-size: 15px;
+      color: #1c1c1e;
+      outline: none;
+      width: 100%;
+      -webkit-appearance: none;
+    }
+    input[type="text"]:focus, input[type="url"]:focus, select:focus {
+      background: #e8e8ed;
+    }
+    select { appearance: none; -webkit-appearance: none; }
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #8e8e93;
+      font-size: 13px;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-primary:active { opacity: 0.85; }
+
+    .btn-outline-add {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(37,99,235,0.1);
+      color: #2563eb;
+      border: 1px solid rgba(37,99,235,0.3);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-outline-add:active { opacity: 0.75; }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      color: #ff3b30;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+
+    /* ── Event Properties ── */
+    .prop-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .prop-empty {
+      text-align: center;
+      padding: 32px 0;
+      font-size: 14px;
+      color: #8e8e93;
+      border: 1.5px dashed #c7c7cc;
+      border-radius: 8px;
+    }
+    .prop-item {
+      border: 1px solid #e5e5ea;
+      border-radius: 8px;
+      padding: 12px;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .prop-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .prop-item-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #3c3c43;
+    }
+    .prop-fields { display: flex; flex-direction: column; gap: 6px; }
+    .prop-fields label { font-size: 12px; font-weight: 500; color: #3c3c43; }
+
+    /* ── Array Input ── */
+    .array-input-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .array-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .array-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #e5e5ea;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 13px;
+    }
+    .array-tag button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #8e8e93;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+    }
+    .array-add-row { display: flex; gap: 6px; }
+    .array-add-row input { flex: 1; }
+    .array-add-row button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed;
+      bottom: 40px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      z-index: 100;
+    }
+    .fab:active { opacity: 0.85; }
+    .fab svg { width: 22px; height: 22px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: rgba(30,30,30,0.92);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 200;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      white-space: nowrap;
+      max-width: calc(100vw - 40px);
+      text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- Banner -->
+<div class="banner">
+  <h1>Amplitude Test UI</h1>
+  <p>Analytics & Experiment</p>
+</div>
+
+<!-- Card List -->
+<div class="card-list">
+
+  <!-- User ID -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard('userId')">
+      <span class="card-title">User ID</span>
+      <svg class="chevron" id="chevron-userId" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="card-divider" id="divider-userId" style="display:none"></div>
+    <div class="card-body hidden" id="body-userId">
+      <div class="field">
+        <label for="userId">User ID</label>
+        <input type="text" id="userId" placeholder="Enter User ID" />
+      </div>
+      <button class="btn-primary" onclick="handleSetUserId()">Set</button>
+    </div>
+  </div>
+
+  <!-- User Property -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard('userProp')">
+      <span class="card-title">User Property</span>
+      <svg class="chevron" id="chevron-userProp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="card-divider" id="divider-userProp" style="display:none"></div>
+    <div class="card-body hidden" id="body-userProp">
+      <div class="field">
+        <label for="propName">Property Name</label>
+        <input type="text" id="propName" placeholder="Property name" />
+      </div>
+      <div class="field">
+        <label for="propType">Data Type</label>
+        <div class="select-wrap">
+          <select id="propType" onchange="onPropTypeChange()">
+            <option value="String">String</option>
+            <option value="Number">Number</option>
+            <option value="Boolean">Boolean</option>
+            <option value="Array">Array</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="propValueField">
+        <label>Property Value</label>
+        <div id="propValueInput">
+          <input type="text" id="propValue" placeholder="Property value" />
+        </div>
+      </div>
+      <button class="btn-primary" onclick="handleSetUserProperty()">Set</button>
+    </div>
+  </div>
+
+  <!-- Event -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard('event')">
+      <span class="card-title">Event</span>
+      <svg class="chevron" id="chevron-event" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="card-divider" id="divider-event" style="display:none"></div>
+    <div class="card-body hidden" id="body-event">
+      <div class="field">
+        <label for="eventName">Event Name</label>
+        <input type="text" id="eventName" placeholder="Enter event name" />
+      </div>
+      <div>
+        <div class="prop-header" style="margin-bottom:8px">
+          <label style="font-size:14px;font-weight:500">Event Properties</label>
+          <button class="btn-outline-add" onclick="addEventProperty()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Property
+          </button>
+        </div>
+        <div id="eventPropsEmpty" class="prop-empty">No event properties added yet</div>
+        <div id="eventPropsList" style="display:none;flex-direction:column;gap:8px"></div>
+      </div>
+      <button class="btn-primary" onclick="handleSendEvent()">Send</button>
+    </div>
+  </div>
+
+  <!-- Other Test -->
+  <div class="card">
+    <div class="card-header" onclick="toggleCard('other')">
+      <span class="card-title">Other Test</span>
+      <svg class="chevron" id="chevron-other" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="card-divider" id="divider-other" style="display:none"></div>
+    <div class="card-body hidden" id="body-other">
+      <button class="btn-primary" onclick="showToast('WebView Test 클릭됨')">WebView Test</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="showToast('Settings')">
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.02 7.02 0 0 0-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87a.48.48 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+  </svg>
+</button>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Amplitude 초기화 ──
+  const API_KEY = 'c9d6c776f682045c5a2456782659cb49';
+  amplitude.add(amplitude.sessionReplayTracking()).promise.then(() => {
+    amplitude.init(API_KEY, { logLevel: amplitude.Types.LogLevel.Debug });
+    console.log('[Amplitude] initialized');
+  });
+
+  // ── Toast ──
+  let toastTimer = null;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // ── Collapsible ──
+  function toggleCard(id) {
+    const body = document.getElementById('body-' + id);
+    const chevron = document.getElementById('chevron-' + id);
+    const divider = document.getElementById('divider-' + id);
+    const isHidden = body.classList.contains('hidden');
+    body.classList.toggle('hidden', !isHidden);
+    chevron.classList.toggle('open', isHidden);
+    divider.style.display = isHidden ? '' : 'none';
+  }
+
+  // ── User ID ──
+  function handleSetUserId() {
+    const val = document.getElementById('userId').value.trim();
+    if (!val) { showToast('User ID를 입력해주세요'); return; }
+    amplitude.setUserId(val);
+    showToast('User ID 설정: ' + val);
+    document.getElementById('userId').value = '';
+  }
+
+  // ── User Property ──
+  let propArrayValue = [];
+
+  function onPropTypeChange() {
+    const type = document.getElementById('propType').value;
+    const container = document.getElementById('propValueInput');
+    propArrayValue = [];
+    if (type === 'Boolean') {
+      container.innerHTML = `
+        <div class="select-wrap">
+          <select id="propValue">
+            <option value="">Select true or false</option>
+            <option value="true">true</option>
+            <option value="false">false</option>
+          </select>
+        </div>`;
+    } else if (type === 'Array') {
+      container.innerHTML = renderArrayInput('propArray', propArrayValue, (items) => { propArrayValue = items; });
+    } else {
+      container.innerHTML = `<input type="text" id="propValue" placeholder="Property value" />`;
+    }
+  }
+
+  function handleSetUserProperty() {
+    const name = document.getElementById('propName').value.trim();
+    const type = document.getElementById('propType').value;
+    if (!name) { showToast('Property Name을 입력해주세요'); return; }
+    if (!/^[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ]/.test(name)) { showToast('Property Name은 문자로 시작해야 합니다'); return; }
+
+    const identify = new amplitude.Identify();
+    if (type === 'Array') {
+      if (propArrayValue.length === 0) { showToast('Array에 항목을 추가해주세요'); return; }
+      identify.set(name, propArrayValue);
+    } else if (type === 'Boolean') {
+      const val = document.getElementById('propValue').value;
+      if (!val) { showToast('Boolean 값을 선택해주세요'); return; }
+      identify.set(name, val === 'true');
+    } else if (type === 'Number') {
+      const raw = document.getElementById('propValue').value.trim();
+      if (!raw) { showToast('Property Value를 입력해주세요'); return; }
+      const num = Number(raw);
+      if (isNaN(num)) { showToast('Number 타입의 값을 입력해주세요'); return; }
+      identify.set(name, num);
+    } else {
+      const val = document.getElementById('propValue').value.trim();
+      if (!val) { showToast('Property Value를 입력해주세요'); return; }
+      identify.set(name, val);
+    }
+    amplitude.identify(identify);
+    showToast('User Property 설정 완료: ' + name);
+    document.getElementById('propName').value = '';
+    document.getElementById('propType').value = 'String';
+    onPropTypeChange();
+    propArrayValue = [];
+  }
+
+  // ── Event Properties ──
+  let eventProps = [];
+
+  function addEventProperty() {
+    const id = Date.now().toString();
+    eventProps.push({ id, name: '', dataType: 'String', value: '', arrayValue: [] });
+    renderEventProps();
+  }
+
+  function removeEventProperty(id) {
+    eventProps = eventProps.filter(p => p.id !== id);
+    renderEventProps();
+  }
+
+  function updateEventProp(id, field, value) {
+    const prop = eventProps.find(p => p.id === id);
+    if (!prop) return;
+    if (field === 'dataType') { prop.value = ''; prop.arrayValue = []; }
+    prop[field] = value;
+  }
+
+  function renderEventProps() {
+    const empty = document.getElementById('eventPropsEmpty');
+    const list = document.getElementById('eventPropsList');
+    if (eventProps.length === 0) {
+      empty.style.display = '';
+      list.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    list.style.display = 'flex';
+    list.innerHTML = eventProps.map((prop, i) => `
+      <div class="prop-item">
+        <div class="prop-item-header">
+          <span class="prop-item-label">Property ${i + 1}</span>
+          <button class="btn-delete" onclick="removeEventProperty('${prop.id}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="prop-fields">
+          <label>Property Name</label>
+          <input type="text" placeholder="Property name" value="${escHtml(prop.name)}"
+            oninput="updateEventProp('${prop.id}','name',this.value)" />
+        </div>
+        <div class="prop-fields">
+          <label>Data Type</label>
+          <div class="select-wrap">
+            <select onchange="updateEventProp('${prop.id}','dataType',this.value);renderEventProps()">
+              ${['String','Number','Boolean','Array'].map(t =>
+                `<option value="${t}"${prop.dataType===t?' selected':''}>${t}</option>`
+              ).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="prop-fields">
+          <label>Property Value</label>
+          ${renderPropValueInput(prop)}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderPropValueInput(prop) {
+    if (prop.dataType === 'Boolean') {
+      return `<div class="select-wrap">
+        <select onchange="updateEventProp('${prop.id}','value',this.value)">
+          <option value=""${!prop.value?' selected':''}>Select true or false</option>
+          <option value="true"${prop.value==='true'?' selected':''}>true</option>
+          <option value="false"${prop.value==='false'?' selected':''}>false</option>
+        </select>
+      </div>`;
+    }
+    if (prop.dataType === 'Array') {
+      const tags = (prop.arrayValue || []).map((item, i) =>
+        `<span class="array-tag">${escHtml(item)}<button onclick="removeEventArrayItem('${prop.id}',${i})">×</button></span>`
+      ).join('');
+      return `<div class="array-input-wrap">
+        <div class="array-tags" id="tags-${prop.id}">${tags}</div>
+        <div class="array-add-row">
+          <input type="text" id="arrayInput-${prop.id}" placeholder="Add item" />
+          <button onclick="addEventArrayItem('${prop.id}')">+</button>
+        </div>
+      </div>`;
+    }
+    return `<input type="text" placeholder="Value" value="${escHtml(prop.value)}"
+      oninput="updateEventProp('${prop.id}','value',this.value)" />`;
+  }
+
+  function addEventArrayItem(propId) {
+    const input = document.getElementById('arrayInput-' + propId);
+    const val = input.value.trim();
+    if (!val) return;
+    const prop = eventProps.find(p => p.id === propId);
+    if (!prop) return;
+    prop.arrayValue = [...(prop.arrayValue || []), val];
+    input.value = '';
+    renderEventProps();
+  }
+
+  function removeEventArrayItem(propId, index) {
+    const prop = eventProps.find(p => p.id === propId);
+    if (!prop) return;
+    prop.arrayValue = prop.arrayValue.filter((_, i) => i !== index);
+    renderEventProps();
+  }
+
+  function handleSendEvent() {
+    const name = document.getElementById('eventName').value.trim();
+    if (!name) { showToast('Event Name을 입력해주세요'); return; }
+    if (/^\d/.test(name)) { showToast('Event Name은 숫자로 시작할 수 없습니다'); return; }
+    if (/[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ _\-]/.test(name)) { showToast('Event Name에 특수기호를 포함할 수 없습니다'); return; }
+
+    const properties = {};
+    for (let i = 0; i < eventProps.length; i++) {
+      const prop = eventProps[i];
+      const n = i + 1;
+      if (!prop.name.trim()) { showToast(`Property ${n}의 이름을 입력해주세요`); return; }
+      if (prop.dataType === 'Array') {
+        if (!prop.arrayValue.length) { showToast(`Property ${n}의 Array 항목을 추가해주세요`); return; }
+        properties[prop.name] = prop.arrayValue;
+      } else if (prop.dataType === 'Boolean') {
+        if (!prop.value) { showToast(`Property ${n}의 Boolean 값을 선택해주세요`); return; }
+        properties[prop.name] = prop.value === 'true';
+      } else if (prop.dataType === 'Number') {
+        const num = Number(prop.value.trim());
+        if (!prop.value.trim() || isNaN(num)) { showToast(`Property ${n}의 값이 Number 타입이 아닙니다`); return; }
+        properties[prop.name] = num;
+      } else {
+        if (!prop.value.trim()) { showToast(`Property ${n}의 값을 입력해주세요`); return; }
+        properties[prop.name] = prop.value;
+      }
+    }
+
+    amplitude.track(name, Object.keys(properties).length ? properties : undefined);
+    showToast('Event 전송 완료: ' + name);
+    document.getElementById('eventName').value = '';
+    eventProps = [];
+    renderEventProps();
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
