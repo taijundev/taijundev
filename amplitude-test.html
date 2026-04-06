@@ -401,7 +401,9 @@
   // ── Amplitude Experiment 초기화 및 fetch ──
   const DEPLOYMENT_KEY = 'client-ZAXnrvfOzA866W08BjyYYp49RK8klVNm';
   const FLAG_KEY = 'webview_banner_color_test';
-  const experiment = Experiment.initializeWithAmplitudeAnalytics(DEPLOYMENT_KEY);
+  const experiment = Experiment.initializeWithAmplitudeAnalytics(DEPLOYMENT_KEY, {
+    automaticExposureTracking: false
+  });
   experiment.fetch()
     .then(() => {
       console.log('[Experiment] fetch 성공');
