@@ -395,11 +395,27 @@
 
   // ── Amplitude Experiment 초기화 및 fetch ──
   const DEPLOYMENT_KEY = 'client-ZAXnrvfOzA866W08BjyYYp49RK8klVNm';
+  const FLAG_KEY = 'webview_banner_color_test';
   const experiment = Experiment.initializeWithAmplitudeAnalytics(DEPLOYMENT_KEY);
   experiment.fetch()
     .then(() => {
-      const variants = experiment.all();
-      console.log('[Experiment] fetch 성공 - variants:', variants);
+      console.log('[Experiment] fetch 성공');
+      const variant = experiment.variant(FLAG_KEY);
+      console.log('[Experiment] variant:', FLAG_KEY, '=', variant.value);
+
+      if (variant.value === 'treatment') {
+        document.querySelector('.banner').style.background = '#e53935';
+      }
+      // control 이거나 미할당이면 현재 배너 색상 유지
+
+      // iOS Native로 Exposure 정보 전달
+      if (window.webkit?.messageHandlers?.amplitudeExperiment) {
+        window.webkit.messageHandlers.amplitudeExperiment.postMessage({
+          flagKey: FLAG_KEY,
+          variant: variant.value ?? 'control'
+        });
+        console.log('[Experiment] Native에 전달:', FLAG_KEY, variant.value);
+      }
     })
     .catch((err) => {
       console.error('[Experiment] fetch 실패:', err);
